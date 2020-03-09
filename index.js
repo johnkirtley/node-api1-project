@@ -17,16 +17,24 @@ server.get('/', (req, res) => {
 server.post('/api/users', (req, res) => {
 	const user = req.body;
 
-	user.id = shortid.generate();
-
-	users.push(user);
-
-	res.status(201).json(user);
+	if (user.name && user.bio) {
+		user.id = shortid.generate();
+		users.push(user);
+		res.status(201).json(user);
+	} else {
+		return res
+			.status(400)
+			.json({ Error: 'Please provide name and bio for the user' });
+	}
 });
 
 // Get All Users
 server.get('/api/users', (req, res) => {
-	res.status(201).json(users);
+	if (users.length < 1) {
+		return res.status(500).json({ Error: 'User info could not be retrieved' });
+	} else {
+		return res.status(201).json(users);
+	}
 });
 
 // Get User By ID
@@ -34,10 +42,9 @@ server.get('/api/users/:id', (req, res) => {
 	const userId = req.params.id;
 
 	users.forEach(user => {
-		if (user.id === userId) {
+		console.log(user);
+		if (user.id === userId.toString()) {
 			return res.status(201).json(user);
-		} else {
-			return res.status(400).json({ error: 'User not found' });
 		}
 	});
 });
